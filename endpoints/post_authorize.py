@@ -11,3 +11,5 @@ class Authorize(Endpoint):
             json=payload,
             headers=headers
         )
+        self.json = self.response.json()
+        return self.response
