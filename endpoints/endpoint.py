@@ -1,11 +1,18 @@
 import allure
+import os
+from dotenv import load_dotenv
 
 
 class Endpoint:
+    load_dotenv()
+    token = os.getenv('TOKEN')
     url = 'http://memesapi.course.qa-practice.com/'
     response = None
     json = None
-    headers = {'Content-Type': 'application/json'}
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': token
+    }
 
     @allure.step('Check that response is 200')
     def check_that_status_is_200(self):
