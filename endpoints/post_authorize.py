@@ -18,16 +18,10 @@ class Authorize(Endpoint):
         print(f'\n{self.token}')
 
         if self.token:
-            # путь к .env (в корне проекта)
             env_path = Path('.') / '.env'
-            # если файла .env ещё нет, создаём
             if not env_path.exists():
-                env_path.write_text('')  # создаёт пустой файл
-
-            # используем set_key из python-dotenv чтобы записать/обновить значение
+                env_path.write_text('')
             set_key(str(env_path), 'TOKEN', self.token)
-            # альтернативно можно открыть файл и дописать вручную:
-            # with open(env_path, 'a', encoding='utf-8') as f:
-            #     f.write(f'\nTOKEN={self.token}\n')
         load_dotenv(override=True)
+        print(f'NEW token {self.response.json().get('token')}')
         return self.response

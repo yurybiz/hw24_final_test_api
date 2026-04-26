@@ -10,5 +10,5 @@ class Token(Endpoint):
             headers={'Content-Type': 'application/json'}
         )
         print(f'\n{self.response.text}')
-        # return self.response.text
+        self.json = self.response.text
         return self.response
