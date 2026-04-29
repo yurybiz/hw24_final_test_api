@@ -16,11 +16,8 @@ class CreateMeme(Endpoint):
         if self.response.status_code == 200:
             try:
                 self.json = self.response.json()
-                print(self.json)
             except ValueError:
-                print("\nResponse is not in JSON format.")
                 self.json = None
         else:
-            print(f"\nError {self.response.status_code}:\n{self.response.text}")
             self.json = None
         return self.response
