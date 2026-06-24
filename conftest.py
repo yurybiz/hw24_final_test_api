@@ -6,16 +6,31 @@ from endpoints.get_authorize_token import Token
 from endpoints.post_meme import CreateMeme
 from endpoints.get_meme import Meme
 from endpoints.put_meme import UpdateMeme
+import os
+from dotenv import load_dotenv
 
 
-@pytest.fixture()
+@pytest.fixture(scope='session')
 def post_meme_authorize():
     return Authorize()
 
 
-@pytest.fixture()
+@pytest.fixture(scope='session')
 def get_token():
     return Token()
+
+
+@pytest.fixture(scope='session')
+def token(get_token, post_meme_authorize):
+    user = 'ytest'
+    get_token.get_token()
+    if get_token.response.status_code == 404:
+        data = {"name": f'{user}'}
+        post_meme_authorize.authorize(data)
+        load_dotenv(override=True)  # override=True перезаписывает существующие переменные
+        token = os.getenv('TOKEN')
+        print(token)
+        return token
 
 
 @pytest.fixture()
@@ -41,6 +56,7 @@ def put_meme():
 @pytest.fixture()
 def delete_meme():
     return DeleteMeme()
+
 
 
 @pytest.fixture()

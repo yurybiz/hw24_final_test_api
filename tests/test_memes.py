@@ -8,16 +8,11 @@ def test_token_is_alive(get_token, post_meme_authorize):
         data = {"name": f'{user}'}
         post_meme_authorize.authorize(data)
         post_meme_authorize.check_that_status_is_200()
-        post_meme_authorize.check_response_user_is_correct(data['name'])
+        post_meme_authorize.check_response_field('name', data['name'])
         post_meme_authorize.check_token_is_not_none()
     else:
-        get_token.check_that_status_is_200()
+        get_token.check_status_code(200)
         get_token.check_response_user_the_same(user)
-
-
-def test_get_memes(get_memes):
-    get_memes.memes()
-    get_memes.check_that_status_is_200()
 
 
 TEST_DATA_POST = [
@@ -45,13 +40,20 @@ TEST_DATA_POST = [
     }
 ]
 
+
+@pytest.mark.parametrize('data', TEST_DATA_POST)
+def test_get_memes(meme, get_memes):
+    get_memes.memes()
+    get_memes.check_status_code(200)
+
+
 @pytest.mark.parametrize('data', TEST_DATA_POST)
 def test_post_meme(meme, post_meme, data):
-    post_meme.check_that_status_is_200()
-    post_meme.check_response_text_in_data_is_correct(data['text'])
-    post_meme.check_response_url_in_data_is_correct(data['url'])
-    post_meme.check_response_info_in_data_is_correct(data['info'])
-    post_meme.check_response_tags_in_data_is_correct(data['tags'])
+    post_meme.check_status_code(200)
+    post_meme.check_response_field('text', data['text'])
+    post_meme.check_response_field('url', data['url'])
+    post_meme.check_response_field('info', data['info'])
+    post_meme.check_response_field('tags', data['tags'])
 
 
 INVALID_DATA_POST = [
@@ -133,19 +135,20 @@ INVALID_DATA_POST = [
 @pytest.mark.parametrize('data', INVALID_DATA_POST)
 def test_post_invalid_meme(post_meme,data):
     post_meme.create_new_meme(data)
-    post_meme.check_that_status_is_400()
+    post_meme.check_status_code(400)
 
 
 @pytest.mark.parametrize('data', TEST_DATA_POST)
 def test_get_meme(meme, get_meme, data):
-    get_meme.meme(meme)
-    get_meme.check_that_status_is_200()
+    mem = get_meme.meme(meme)
+    get_meme.check_id(mem.json()['id'], meme)
+    get_meme.check_status_code(200)
 
 
 def test_get_invalid_meme(get_meme):
     invalid_id = '39ewuih'
     get_meme.meme(invalid_id)
-    get_meme.check_that_status_is_404()
+    get_meme.check_status_code(404)
 
 
 TEST_DATA_PUT = [
@@ -181,11 +184,11 @@ def test_put_meme(meme, put_meme, data, data_put):
         **data_put
     }
     put_meme.update_meme(update_data, meme)
-    put_meme.check_that_status_is_200()
-    put_meme.check_response_text_in_data_is_correct(update_data['text'])
-    put_meme.check_response_url_in_data_is_correct(update_data['url'])
-    put_meme.check_response_info_in_data_is_correct(update_data['info'])
-    put_meme.check_response_tags_in_data_is_correct(update_data['tags'])
+    put_meme.check_status_code(200)
+    put_meme.check_response_field('text', update_data['text'])
+    put_meme.check_response_field('url', update_data['url'])
+    put_meme.check_response_field('info', update_data['info'])
+    put_meme.check_response_field('tags', update_data['tags'])
 
 
 @pytest.mark.parametrize('data', TEST_DATA_POST)
@@ -196,7 +199,7 @@ def test_put_invalid_meme_id_none_json(meme, put_meme, data, data_put):
         **data_put
     }
     put_meme.update_meme(update_data, meme)
-    put_meme.check_that_status_is_400()
+    put_meme.check_status_code(400)
 
 
 @pytest.mark.parametrize('data', TEST_DATA_POST)
@@ -207,7 +210,7 @@ def test_put_invalid_meme_id_none_url(meme, put_meme, data, data_put):
         **data_put
     }
     put_meme.update_meme(update_data, None)
-    put_meme.check_that_status_is_404()
+    put_meme.check_status_code(404)
 
 INVALID_DATA_PUT = [
     {
@@ -289,16 +292,18 @@ def test_put_invalid_meme(meme, put_meme, data, data_put):
         **data_put
     }
     put_meme.update_meme(update_data, meme)
-    put_meme.check_that_status_is_400()
+    put_meme.check_status_code(400)
 
 
 @pytest.mark.parametrize('data', TEST_DATA_POST)
-def test_delete_meme(meme, delete_meme, data):
+def test_delete_meme(meme, delete_meme, get_memes, data):
     delete_meme.delete_meme(meme)
-    delete_meme.check_that_status_is_200()
+    delete_meme.check_status_code(200)
+    get_memes.memes()
+    get_memes.check_that_item_is_deleted(meme)
 
 
 def test_delete_invalid_meme(delete_meme):
     invalid_id = '39ewuih'
     delete_meme.delete_meme(invalid_id)
-    delete_meme.check_that_status_is_404()
+    delete_meme.check_status_code(404)

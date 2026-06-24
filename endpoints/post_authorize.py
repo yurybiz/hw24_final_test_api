@@ -22,4 +22,5 @@ class Authorize(Endpoint):
                 env_path.write_text('')
             set_key(str(env_path), 'TOKEN', self.token)
         load_dotenv(override=True)
+        print(f'ВОТ ОН {self.token}')
         return self.response
